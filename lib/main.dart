@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'src/pages/login.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -15,15 +19,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DigitalMenu',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 212, 10, 8)),
-        textTheme: TextTheme(),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-          backgroundColor: Color.fromARGB(255, 212, 10, 8),
-        )),
-        useMaterial3: true,
-      ),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 212, 10, 8),
+              brightness: Brightness.light),
+          useMaterial3: true,
+          textTheme: const TextTheme(
+              displayLarge: TextStyle(
+            fontSize: 72,
+            fontWeight: FontWeight.bold,
+          ))),
       home: const Login(),
     );
   }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "958431963176",
+    "project_id": "digitalmenu-c51d2",
+    "storage_bucket": "digitalmenu-c51d2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958431963176:android:222b76db8a5a4a0f9ead1d",
+        "android_client_info": {
+          "package_name": "com.example.digital_menu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc_GOCbdYj_u5LC-anxtjYWbWM6iA4HqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

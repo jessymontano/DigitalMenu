@@ -1,6 +1,13 @@
+import 'package:digital_menu/src/pages/signup.dart';
+import 'package:digital_menu/src/pages/home.dart';
+import 'package:digital_menu/src/pages/password_change.dart';
 import 'package:flutter/material.dart';
 import '../widgets/button.dart';
 import '../widgets/input.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+FirebaseFirestore db = FirebaseFirestore.instance;
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -25,6 +32,9 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _rememberMe = false;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  String _errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +51,33 @@ class _LoginFormState extends State<LoginForm> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
-          Input(hintText: 'Ingrese el usuario', labelText: 'Usuario'),
-          Input(hintText: 'Ingrese la contraseña.', labelText: 'Contraseña'),
+          Input(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Ingrese su usuario';
+                }
+                return null;
+              },
+              controller: _usernameController,
+              hintText: 'Ingrese el usuario',
+              labelText: 'Usuario'),
+          Input(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Ingrese su contraseña';
+                }
+                return null;
+              },
+              controller: _passwordController,
+              hintText: 'Ingrese la contraseña.',
+              labelText: 'Contraseña'),
+          if (_errorMessage.isNotEmpty)
+            Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(color: Colors.red),
+                )),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -61,13 +96,46 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ),
               TextButton(
-                  onPressed: () {}, child: Text('Olvide mi contraseña.')),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ChangePassword()));
+                  },
+                  child: const Text('Olvide mi contraseña.')),
             ],
           ),
           Padding(
-            padding: EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(15.0),
             child: Button(
-              onPressed: () {},
+              onPressed: () async {
+                if (_formKey.currentState?.validate() ?? false) {
+                  final user = await db
+                      .collection('usuarios')
+                      .where('username', isEqualTo: _usernameController.text)
+                      .get();
+                  if (user.docs.isEmpty) {
+                    setState(() {
+                      _errorMessage = 'El ususario no existe.';
+                    });
+                  } else {
+                    final doc = user.docs.first;
+                    if (doc['password'] == _passwordController.text) {
+                      setState(() {
+                        _errorMessage = '';
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Home()));
+                      });
+                    } else {
+                      setState(() {
+                        _errorMessage = 'Contraseña incorrecta';
+                      });
+                    }
+                  }
+                }
+              },
               text: 'Iniciar Sesión',
             ),
           ),
@@ -75,8 +143,15 @@ class _LoginFormState extends State<LoginForm> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('¿No tienes una cuenta?'),
-              TextButton(onPressed: () {}, child: Text('Registrate'))
+              const Text('¿No tienes una cuenta?'),
+              TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SignUp()));
+                  },
+                  child: const Text('Registrate'))
             ],
           )
         ],

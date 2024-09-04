@@ -3,9 +3,16 @@ import 'package:flutter/material.dart';
 class Input extends StatefulWidget {
   final String hintText;
   final String labelText;
+  final TextEditingController controller;
   final FormFieldValidator<String>? validator;
 
-  Input({required this.hintText, required this.labelText, this.validator});
+  Input({
+    super.key,
+    required this.hintText,
+    required this.labelText,
+    required this.controller,
+    this.validator,
+  });
 
   @override
   _InputState createState() => _InputState();
@@ -17,8 +24,10 @@ class _InputState extends State<Input> {
     return SizedBox(
         width: 400,
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(10.0),
           child: TextFormField(
+            controller: widget.controller,
+            cursorColor: Color.fromARGB(255, 212, 10, 8),
             decoration: InputDecoration(
               labelText: widget.labelText,
               border:
