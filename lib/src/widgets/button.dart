@@ -13,7 +13,7 @@ class Button extends StatelessWidget {
         style: ElevatedButton.styleFrom(
             backgroundColor: Color.fromARGB(255, 212, 10, 8),
             foregroundColor: Colors.white,
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(100, 20, 100, 20),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10))),
         child: Text(text));
