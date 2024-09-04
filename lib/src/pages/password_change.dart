@@ -1,3 +1,4 @@
+import 'package:digital_menu/src/pages/login.dart';
 import 'package:digital_menu/src/pages/signup.dart';
 import 'package:flutter/material.dart';
 import '../widgets/button.dart';
@@ -10,9 +11,10 @@ class ChangePassword extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
         home: Scaffold(
-            body: Row(
-      children: [ChangePasswordForm()],
-    )));
+      body: Center(
+        child: ChangePasswordForm(),
+      ),
+    ));
   }
 }
 
@@ -44,10 +46,10 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
           ),
           Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Text(
-              'Introduzca su dirección de correo eléctronico a continuación y se le enviará un e-mail con un código de 6 dígitos para reestablecer su contraseña.',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            child: RichText(
+                text: TextSpan(
+                    text:
+                        'Introduzca su dirección de correo eléctronico a continuación y se le enviará un e-mail con un código de 6 dígitos para reestablecer su contraseña.')),
           ),
           Input(
             controller: _emailController,
@@ -61,6 +63,12 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
               text: 'Enviar código',
             ),
           ),
+          TextButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const Login()));
+              },
+              child: const Text('Cancelar'))
         ],
       ),
     );
