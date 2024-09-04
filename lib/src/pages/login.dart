@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import '../widgets/button.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -73,10 +73,10 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               )),
           Padding(
-            padding: EdgeInsets.all(20.0),
-            child: ElevatedButton(
+            padding: EdgeInsets.all(15.0),
+            child: Button(
               onPressed: () {},
-              child: Text('Iniciar Sesión'),
+              text: 'Iniciar Sesión',
             ),
           )
         ],
