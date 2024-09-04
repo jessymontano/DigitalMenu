@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import '../widgets/button.dart';
+import '../widgets/input.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Scaffold(body: const LoginForm()));
+    return const MaterialApp(
+        home: Scaffold(
+            body: Row(
+      children: [LoginForm()],
+    )));
   }
 }
 
@@ -19,6 +24,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _rememberMe = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,55 +35,49 @@ class _LoginFormState extends State<LoginForm> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
             child: Text(
               'INICIAR SESIÓN',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
-          SizedBox(
-            width: 300,
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                    labelText: 'Usuario',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
-                    hintText: 'Introduce tu nombre de usuario'),
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Campo obligatorio';
-                  }
-                  return null;
-                },
-              ),
-            ),
-          ),
-          SizedBox(
-              width: 300,
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                      labelText: 'Contraseña',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0)),
-                      hintText: 'Introduce tu contraseña'),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obligatorio.';
-                    }
-                    return null;
+          Input(hintText: 'Ingrese el usuario', labelText: 'Usuario'),
+          Input(hintText: 'Ingrese la contraseña.', labelText: 'Contraseña'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                width: 200,
+                child: CheckboxListTile(
+                  value: _rememberMe,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _rememberMe = value!;
+                    });
                   },
+                  title: const Text('Recuérdame'),
+                  controlAffinity: ListTileControlAffinity.leading,
                 ),
-              )),
+              ),
+              TextButton(
+                  onPressed: () {}, child: Text('Olvide mi contraseña.')),
+            ],
+          ),
           Padding(
             padding: EdgeInsets.all(15.0),
             child: Button(
               onPressed: () {},
               text: 'Iniciar Sesión',
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('¿No tienes una cuenta?'),
+              TextButton(onPressed: () {}, child: Text('Registrate'))
+            ],
           )
         ],
       ),
