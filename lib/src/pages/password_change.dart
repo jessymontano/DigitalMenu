@@ -9,21 +9,16 @@ class ChangePassword extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Formulario en el centro (intentar)
-          const Center(
+          const Padding(
+            padding: EdgeInsets.fromLTRB(50, 0, 30, 0),
             child: ChangePasswordForm(),
           ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Image.asset(
-                'assets/logo.jpg', 
-                width: 550, // Ancho
-              ),
-            ),
+          Image.asset(
+            'assets/logo.jpg',
           ),
         ],
       ),
@@ -55,20 +50,28 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
             child: Text(
               'RECUPERAR CONTRASEÑA',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: RichText(
               text: TextSpan(
-                text: 'Introduzca su dirección de correo electrónico a continuación y se le enviará un e-mail con un código de 6 dígitos para restablecer su contraseña.',
-                style: DefaultTextStyle.of(context).style,
+                text:
+                    'Introduzca su dirección de correo electrónico a continuación y se le enviará \nun e-mail con un código de 6 dígitos para restablecer su contraseña.',
               ),
             ),
           ),
           Input(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Ingrese su email.';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Ingrese un email válido';
+              }
+              return null;
+            },
             controller: _emailController,
             hintText: 'ejemplo@gmail.com',
             labelText: 'Email',
@@ -77,7 +80,9 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
             padding: const EdgeInsets.all(15.0),
             child: Button(
               onPressed: () {
-                //aqui va el codigo para la recuperación
+                if (_formKey.currentState?.validate() ?? false) {
+                  //aqui va el codigo para la recuperación
+                }
               },
               text: 'Enviar código',
             ),
@@ -89,7 +94,8 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
                 MaterialPageRoute(builder: (context) => const Login()),
               );
             },
-            child: const Text('Cancelar', style: TextStyle(color: Colors.black)),            
+            child:
+                const Text('Cancelar', style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
