@@ -29,7 +29,7 @@ class Login extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [LoginForm(), Image.asset('logo.jpg')],
+            children: [const LoginForm(), Image.asset('logo.jpg')],
           );
         },
       ),
@@ -56,7 +56,7 @@ class _LoginFormState extends State<LoginForm> {
     return Form(
         key: _formKey,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(100, 0, 30, 0),
+          padding: const EdgeInsets.fromLTRB(100, 0, 30, 0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -65,7 +65,9 @@ class _LoginFormState extends State<LoginForm> {
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
                   'INICIAR SESIÓN',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Input(
@@ -90,10 +92,10 @@ class _LoginFormState extends State<LoginForm> {
                   labelText: 'Contraseña'),
               if (_errorMessage.isNotEmpty)
                 Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Text(
                       _errorMessage,
-                      style: TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red),
                     )),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -110,6 +112,7 @@ class _LoginFormState extends State<LoginForm> {
                       },
                       title: const Text('Recuérdame'),
                       controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: Colors.red,
                     ),
                   ),
                   TextButton(
@@ -119,7 +122,7 @@ class _LoginFormState extends State<LoginForm> {
                             MaterialPageRoute(
                                 builder: (context) => const ChangePassword()));
                       },
-                      child: const Text('Olvide mi contraseña.')),
+                      child: const Text('Olvide mi contraseña.', style: TextStyle(color: Colors.red))),
                 ],
               ),
               Padding(
@@ -169,7 +172,7 @@ class _LoginFormState extends State<LoginForm> {
                             MaterialPageRoute(
                                 builder: (context) => const SignUp()));
                       },
-                      child: const Text('Registrate'))
+                      child: const Text('Registrate', style: TextStyle(color: Colors.red)))
                 ],
               )
             ],

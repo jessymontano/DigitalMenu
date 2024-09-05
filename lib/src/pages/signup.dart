@@ -4,7 +4,7 @@ import '../widgets/input.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart';
 
-FirebaseFirestore db = FirebaseFirestore.instance;
+FirebaseFirestore db = FirebaseFirestore.instance; //Base de datos
 
 class SignUp extends StatelessWidget {
   const SignUp({super.key});
@@ -16,7 +16,7 @@ class SignUp extends StatelessWidget {
             body: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [SignUpForm(), Image.asset('logo.jpg')],
+      children: [const SignUpForm(), Image.asset('logo.jpg')],
     )));
   }
 }
@@ -42,7 +42,7 @@ class _SignUpFormState extends State<SignUpForm> {
     return Form(
         key: _formKey,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(100, 0, 30, 0),
+          padding: const EdgeInsets.fromLTRB(100, 0, 30, 0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,7 +51,9 @@ class _SignUpFormState extends State<SignUpForm> {
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
                   'REGÍSTRATE',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Input(
@@ -148,7 +150,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => const Login()));
                   },
-                  child: const Text('Cancelar'))
+                  child: const Text('Cancelar', style: TextStyle(color: Colors.black),))
             ],
           ),
         ));

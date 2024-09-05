@@ -30,6 +30,7 @@ class _InputState extends State<Input> {
             cursorColor: Color.fromARGB(255, 212, 10, 8),
             decoration: InputDecoration(
               labelText: widget.labelText,
+              labelStyle: TextStyle(color: Colors.black), 
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
               focusedBorder: OutlineInputBorder(
@@ -37,8 +38,10 @@ class _InputState extends State<Input> {
                       const BorderSide(color: Color.fromARGB(255, 212, 10, 8)),
                   borderRadius: BorderRadius.circular(10.0)),
               hintText: widget.hintText,
+              hintStyle: TextStyle(color: Colors.black),
             ),
             validator: widget.validator,
+            style: TextStyle(color: Colors.black),
           ),
         ));
   }
