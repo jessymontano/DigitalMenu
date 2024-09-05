@@ -36,6 +36,7 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController =
       TextEditingController();
+  String _errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +53,8 @@ class _SignUpFormState extends State<SignUpForm> {
                 child: Text(
                   'REGÍSTRATE',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
               Input(
@@ -113,33 +114,60 @@ class _SignUpFormState extends State<SignUpForm> {
                   controller: _repeatPasswordController,
                   hintText: 'Vuelva a ingresar su contraseña',
                   labelText: 'Confirmar contraseña'),
+              if (_errorMessage.isNotEmpty)
+                Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Text(
+                      _errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                    )),
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Button(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      final user = <String, dynamic>{
-                        'username': _usernameController.text,
-                        'name': _nameController.text,
-                        'email': _emailController.text,
-                        'password': _passwordController.text,
-                        'role': 'usuario'
-                      };
-
-                      db.collection('usuarios').add(user).then(
-                          (DocumentReference doc) =>
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Usuario creado exitosamente'),
-                                ),
-                              ));
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Login(
-                                    successMessage:
-                                        'Usuario registrado correctamente.',
-                                  )));
+                      final checkEmail = await db
+                          .collection('usuarios')
+                          .where('email', isEqualTo: _emailController.text)
+                          .get();
+                      final checkUsername = await db
+                          .collection('usuarios')
+                          .where('username',
+                              isEqualTo: _usernameController.text)
+                          .get();
+                      if (checkEmail.docs.isNotEmpty) {
+                        setState(() {
+                          _errorMessage =
+                              'Ya existe un usuario asociado a ese email.';
+                        });
+                      } else if (checkUsername.docs.isNotEmpty) {
+                        setState(() {
+                          _errorMessage = 'El nombre de usuario ya existe.';
+                        });
+                      } else {
+                        final user = <String, dynamic>{
+                          'username': _usernameController.text,
+                          'name': _nameController.text,
+                          'email': _emailController.text,
+                          'password': _passwordController.text,
+                          'role': 'usuario'
+                        };
+                        db.collection('usuarios').add(user).then(
+                            (DocumentReference doc) =>
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Usuario creado exitosamente'),
+                                  ),
+                                ));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Login(
+                                      successMessage:
+                                          'Usuario registrado correctamente.',
+                                    )));
+                      }
                     }
                   },
                   text: 'Crear Cuenta',
@@ -150,7 +178,10 @@ class _SignUpFormState extends State<SignUpForm> {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => const Login()));
                   },
-                  child: const Text('Cancelar', style: TextStyle(color: Colors.black),))
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(color: Colors.black),
+                  ))
             ],
           ),
         ));
