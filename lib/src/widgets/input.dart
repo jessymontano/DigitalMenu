@@ -42,7 +42,7 @@ class _InputState extends State<Input> {
               hintText: widget.hintText,
               hintStyle: const TextStyle(color: Colors.black),
             ),
-            obscureText: widget.obscureText,
+            obscureText: widget.obscureText, // Aquí se aplica el obscureText
             validator: widget.validator,
             style: const TextStyle(color: Colors.black),
           ),
