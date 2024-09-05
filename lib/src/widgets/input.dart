@@ -5,6 +5,7 @@ class Input extends StatefulWidget {
   final String labelText;
   final TextEditingController controller;
   final FormFieldValidator<String>? validator;
+  final bool obscureText; // Agregamos el parámetro 'obscureText'
 
   Input({
     super.key,
@@ -12,6 +13,7 @@ class Input extends StatefulWidget {
     required this.labelText,
     required this.controller,
     this.validator,
+    this.obscureText = false, // Por defecto es falso, pero puede activarse
   });
 
   @override
@@ -27,21 +29,22 @@ class _InputState extends State<Input> {
           padding: const EdgeInsets.all(10.0),
           child: TextFormField(
             controller: widget.controller,
-            cursorColor: Color.fromARGB(255, 212, 10, 8),
+            cursorColor: const Color.fromARGB(255, 212, 10, 8),
             decoration: InputDecoration(
               labelText: widget.labelText,
-              labelStyle: TextStyle(color: Colors.black), 
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+              labelStyle: const TextStyle(color: Colors.black),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
               focusedBorder: OutlineInputBorder(
                   borderSide:
                       const BorderSide(color: Color.fromARGB(255, 212, 10, 8)),
                   borderRadius: BorderRadius.circular(10.0)),
               hintText: widget.hintText,
-              hintStyle: TextStyle(color: Colors.black),
+              hintStyle: const TextStyle(color: Colors.black),
             ),
+            obscureText: widget.obscureText,
             validator: widget.validator,
-            style: TextStyle(color: Colors.black),
+            style: const TextStyle(color: Colors.black),
           ),
         ));
   }

@@ -15,25 +15,27 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Scaffold(
-      body: Builder(
-        builder: (context) {
-          if (successMessage != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(successMessage!)),
-              );
-            });
-          }
+    return MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) {
+            if (successMessage != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(successMessage!)),
+                );
+              });
+            }
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [const LoginForm(), Image.asset('logo.jpg')],
-          );
-        },
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [const LoginForm(), Image.asset('logo.jpg')],
+            );
+          },
+        ),
       ),
-    ));
+    );
   }
 }
 
@@ -54,129 +56,147 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     return Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(100, 0, 30, 0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(100, 0, 30, 0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                'INICIAR SESIÓN',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            Input(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Ingrese su usuario';
+                }
+                return null;
+              },
+              controller: _usernameController,
+              hintText: 'Ingrese el usuario',
+              labelText: 'Usuario',
+            ),
+            Input(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Ingrese su contraseña';
+                }
+                return null;
+              },
+              controller: _passwordController,
+              hintText: 'Ingrese la contraseña.',
+              labelText: 'Contraseña',
+              obscureText: true, // Ocultar el texto de la contraseña
+            ),
+            if (_errorMessage.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Text(
-                  'INICIAR SESIÓN',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  _errorMessage,
+                  style: const TextStyle(color: Colors.red),
                 ),
               ),
-              Input(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingrese su usuario';
-                    }
-                    return null;
-                  },
-                  controller: _usernameController,
-                  hintText: 'Ingrese el usuario',
-                  labelText: 'Usuario'),
-              Input(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingrese su contraseña';
-                    }
-                    return null;
-                  },
-                  controller: _passwordController,
-                  hintText: 'Ingrese la contraseña.',
-                  labelText: 'Contraseña'),
-              if (_errorMessage.isNotEmpty)
-                Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Text(
-                      _errorMessage,
-                      style: const TextStyle(color: Colors.red),
-                    )),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    width: 200,
-                    child: CheckboxListTile(
-                      value: _rememberMe,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _rememberMe = value!;
-                        });
-                      },
-                      title: const Text('Recuérdame'),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      activeColor: Colors.red,
-                    ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(
+                  width: 200,
+                  child: CheckboxListTile(
+                    value: _rememberMe,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _rememberMe = value!;
+                      });
+                    },
+                    title: const Text('Recuérdame'),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    activeColor: Colors.red,
                   ),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.push(
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ChangePassword(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Olvide mi contraseña.',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Button(
+                onPressed: () async {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    final user = await db
+                        .collection('usuarios')
+                        .where('username', isEqualTo: _usernameController.text)
+                        .get();
+                    if (user.docs.isEmpty) {
+                      setState(() {
+                        _errorMessage = 'El usuario no existe.';
+                      });
+                    } else {
+                      final doc = user.docs.first;
+                      if (doc['password'] == _passwordController.text) {
+                        setState(() {
+                          _errorMessage = '';
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const ChangePassword()));
-                      },
-                      child: const Text('Olvide mi contraseña.', style: TextStyle(color: Colors.red))),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Button(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      final user = await db
-                          .collection('usuarios')
-                          .where('username',
-                              isEqualTo: _usernameController.text)
-                          .get();
-                      if (user.docs.isEmpty) {
-                        setState(() {
-                          _errorMessage = 'El ususario no existe.';
+                              builder: (context) => const Home(),
+                            ),
+                          );
                         });
                       } else {
-                        final doc = user.docs.first;
-                        if (doc['password'] == _passwordController.text) {
-                          setState(() {
-                            _errorMessage = '';
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Home()));
-                          });
-                        } else {
-                          setState(() {
-                            _errorMessage = 'Contraseña incorrecta';
-                          });
-                        }
+                        setState(() {
+                          _errorMessage = 'Contraseña incorrecta';
+                        });
                       }
                     }
-                  },
-                  text: 'Iniciar Sesión',
-                ),
+                  }
+                },
+                text: 'Iniciar Sesión',
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('¿No tienes una cuenta?'),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignUp()));
-                      },
-                      child: const Text('Registrate', style: TextStyle(color: Colors.red)))
-                ],
-              )
-            ],
-          ),
-        ));
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text('¿No tienes una cuenta?'),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignUp(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Regístrate',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
