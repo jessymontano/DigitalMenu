@@ -9,6 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
+final logo = Image.asset('logo.jpg');
+
 class Login extends StatelessWidget {
   final String? successMessage;
   const Login({super.key, this.successMessage});
@@ -30,7 +32,7 @@ class Login extends StatelessWidget {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [const LoginForm(), Image.asset('logo.jpg')],
+              children: [LoginForm(), logo],
             );
           },
         ),
@@ -60,6 +62,7 @@ class _LoginFormState extends State<LoginForm> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(100, 0, 30, 0),
         child: Column(
+          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -179,6 +182,7 @@ class _LoginFormState extends State<LoginForm> {
               children: [
                 const Text('¿No tienes una cuenta?'),
                 TextButton(
+                  key: const Key("signupButton"),
                   onPressed: () {
                     Navigator.push(
                       context,
