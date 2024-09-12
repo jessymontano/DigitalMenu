@@ -1,7 +1,9 @@
 import 'package:digital_menu/src/pages/signup.dart';
 import 'package:digital_menu/src/pages/home.dart';
 import 'package:digital_menu/src/pages/password_change.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../widgets/button.dart';
 import '../widgets/input.dart';
 
@@ -9,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
-final logo = Image.asset('logo.jpg');
+//final logo = Image.asset('logo.jpg');
 
 class Login extends StatelessWidget {
   final String? successMessage;
@@ -30,10 +32,9 @@ class Login extends StatelessWidget {
             }
 
             return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [LoginForm(), logo],
-            );
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [Expanded(child: LoginForm())]);
           },
         ),
       ),
@@ -62,7 +63,7 @@ class _LoginFormState extends State<LoginForm> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(100, 0, 30, 0),
         child: Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -76,6 +77,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
             Input(
+              key: Key("loginInput"),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Ingrese su usuario';
@@ -87,6 +89,7 @@ class _LoginFormState extends State<LoginForm> {
               labelText: 'Usuario',
             ),
             Input(
+              key: Key("passwordInput"),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Ingrese su contraseña';
@@ -107,6 +110,7 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ),
             Row(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -125,6 +129,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
                 TextButton(
+                  key: const Key("changePasswordButton"),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -143,6 +148,7 @@ class _LoginFormState extends State<LoginForm> {
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: Button(
+                key: Key("loginButton"),
                 onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
                     final user = await db
@@ -177,6 +183,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
             Row(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [

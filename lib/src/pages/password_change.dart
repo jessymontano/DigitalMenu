@@ -13,9 +13,11 @@ class ChangePassword extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Formulario en el centro (intentar)
-          const Padding(
-            padding: EdgeInsets.fromLTRB(50, 0, 30, 0),
-            child: ChangePasswordForm(),
+          const Expanded(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(50, 0, 30, 0),
+              child: ChangePasswordForm(),
+            ),
           ),
           Image.asset(
             'assets/logo.jpg',
