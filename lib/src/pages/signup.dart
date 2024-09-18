@@ -5,6 +5,8 @@ import '../widgets/input.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login.dart';
 
+final supabase = Supabase.instance.client;
+
 class SignUp extends StatelessWidget {
   const SignUp({super.key});
 
