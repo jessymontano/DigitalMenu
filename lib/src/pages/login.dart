@@ -8,6 +8,7 @@ import '../widgets/input.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
+final logo = Image.asset('logo.jpg');
 
 class Login extends StatelessWidget {
   final String? successMessage;
