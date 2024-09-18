@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import '../widgets/button.dart';
 import '../widgets/input.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-FirebaseFirestore db = FirebaseFirestore.instance;
+final supabase = Supabase.instance.client;
 
 class Login extends StatelessWidget {
   final String? successMessage;
@@ -66,8 +66,8 @@ class _LoginFormState extends State<LoginForm> {
                 child: Text(
                   'INICIAR SESIÓN',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
               Input(
@@ -122,7 +122,8 @@ class _LoginFormState extends State<LoginForm> {
                             MaterialPageRoute(
                                 builder: (context) => const ChangePassword()));
                       },
-                      child: const Text('Olvide mi contraseña.', style: TextStyle(color: Colors.red))),
+                      child: const Text('Olvide mi contraseña.',
+                          style: TextStyle(color: Colors.red))),
                 ],
               ),
               Padding(
@@ -130,18 +131,18 @@ class _LoginFormState extends State<LoginForm> {
                 child: Button(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      final user = await db
-                          .collection('usuarios')
-                          .where('username',
-                              isEqualTo: _usernameController.text)
-                          .get();
-                      if (user.docs.isEmpty) {
+                      final user = await supabase
+                          .from('usuarios')
+                          .select()
+                          .eq('nombre_usuario', _usernameController.text)
+                          .maybeSingle();
+                      if (user == null) {
                         setState(() {
                           _errorMessage = 'El ususario no existe.';
                         });
                       } else {
-                        final doc = user.docs.first;
-                        if (doc['password'] == _passwordController.text) {
+                        final password = user['contrasena'] as String;
+                        if (password == _passwordController.text) {
                           setState(() {
                             _errorMessage = '';
                             Navigator.push(
@@ -172,7 +173,8 @@ class _LoginFormState extends State<LoginForm> {
                             MaterialPageRoute(
                                 builder: (context) => const SignUp()));
                       },
-                      child: const Text('Registrate', style: TextStyle(color: Colors.red)))
+                      child: const Text('Registrate',
+                          style: TextStyle(color: Colors.red)))
                 ],
               )
             ],
