@@ -92,29 +92,33 @@ class _SignUpFormState extends State<SignUpForm> {
                   hintText: 'ejemplo@gmail.com',
                   labelText: 'Correo electrónico'),
               Input(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingrese una contraseña';
-                    } else if (value != _repeatPasswordController.text) {
-                      return 'Las contraseñas deben ser iguales';
-                    }
-                    return null;
-                  },
-                  controller: _passwordController,
-                  hintText: 'Ingrese su contraseña',
-                  labelText: 'Contraseña'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ingrese una contraseña';
+                  } else if (value != _repeatPasswordController.text) {
+                    return 'Las contraseñas deben ser iguales';
+                  }
+                  return null;
+                },
+                controller: _passwordController,
+                hintText: 'Ingrese su contraseña',
+                labelText: 'Contraseña',
+                obscureText: true,
+              ),
               Input(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Repita su contraseña';
-                    } else if (value != _passwordController.text) {
-                      return 'Las contraseñas deben ser iguales';
-                    }
-                    return null;
-                  },
-                  controller: _repeatPasswordController,
-                  hintText: 'Vuelva a ingresar su contraseña',
-                  labelText: 'Confirmar contraseña'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Repita su contraseña';
+                  } else if (value != _passwordController.text) {
+                    return 'Las contraseñas deben ser iguales';
+                  }
+                  return null;
+                },
+                controller: _repeatPasswordController,
+                hintText: 'Vuelva a ingresar su contraseña',
+                labelText: 'Confirmar contraseña',
+                obscureText: true,
+              ),
               if (_errorMessage.isNotEmpty)
                 Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -127,40 +131,33 @@ class _SignUpFormState extends State<SignUpForm> {
                 child: Button(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      final checkEmail = await db
-                          .collection('usuarios')
-                          .where('email', isEqualTo: _emailController.text)
-                          .get();
-                      final checkUsername = await db
-                          .collection('usuarios')
-                          .where('username',
-                              isEqualTo: _usernameController.text)
-                          .get();
-                      if (checkEmail.docs.isNotEmpty) {
+                      final checkEmail = await supabase
+                          .from('usuarios')
+                          .select()
+                          .eq('correo', _emailController.text)
+                          .maybeSingle();
+                      final checkUsername = await supabase
+                          .from("usuarios")
+                          .select()
+                          .eq("nombre_usuario", _usernameController.text)
+                          .maybeSingle();
+                      if (checkEmail != null) {
                         setState(() {
                           _errorMessage =
                               'Ya existe un usuario asociado a ese email.';
                         });
-                      } else if (checkUsername.docs.isNotEmpty) {
+                      } else if (checkUsername != null) {
                         setState(() {
                           _errorMessage = 'El nombre de usuario ya existe.';
                         });
                       } else {
                         final user = <String, dynamic>{
-                          'username': _usernameController.text,
-                          'name': _nameController.text,
-                          'email': _emailController.text,
-                          'password': _passwordController.text,
-                          'role': 'usuario'
+                          'nombre_usuario': _usernameController.text,
+                          'nombre': _nameController.text,
+                          'correo': _emailController.text,
+                          'contrasena': _passwordController.text,
                         };
-                        db.collection('usuarios').add(user).then(
-                            (DocumentReference doc) =>
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Usuario creado exitosamente'),
-                                  ),
-                                ));
+                        await supabase.from('usuarios').insert(user);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
