@@ -15,25 +15,27 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Scaffold(
-      body: Builder(
-        builder: (context) {
-          if (successMessage != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(successMessage!)),
-              );
-            });
-          }
+    return MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) {
+            if (successMessage != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(successMessage!)),
+                );
+              });
+            }
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [const LoginForm(), Image.asset('logo.jpg')],
-          );
-        },
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [const LoginForm(), Image.asset('logo.jpg')],
+            );
+          },
+        ),
       ),
-    ));
+    );
   }
 }
 
@@ -81,15 +83,17 @@ class _LoginFormState extends State<LoginForm> {
                   hintText: 'Ingrese el usuario',
                   labelText: 'Usuario'),
               Input(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingrese su contraseña';
-                    }
-                    return null;
-                  },
-                  controller: _passwordController,
-                  hintText: 'Ingrese la contraseña.',
-                  labelText: 'Contraseña'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ingrese su contraseña';
+                  }
+                  return null;
+                },
+                controller: _passwordController,
+                hintText: 'Ingrese la contraseña.',
+                labelText: 'Contraseña',
+                obscureText: true,
+              ),
               if (_errorMessage.isNotEmpty)
                 Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),

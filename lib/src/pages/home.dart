@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-FirebaseFirestore db = FirebaseFirestore.instance;
-
 class Home extends StatelessWidget {
   const Home({super.key});
 

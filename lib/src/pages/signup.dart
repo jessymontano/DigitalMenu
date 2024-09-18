@@ -11,12 +11,14 @@ class SignUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
-            body: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [const SignUpForm(), Image.asset('logo.jpg')],
-    )));
+      home: Scaffold(
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [const SignUpForm(), Image.asset('logo.jpg')],
+        ),
+      ),
+    );
   }
 }
 
@@ -125,33 +127,40 @@ class _SignUpFormState extends State<SignUpForm> {
                 child: Button(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      final checkEmail = await supabase
-                          .from('usuarios')
-                          .select()
-                          .eq('correo', _emailController.text)
-                          .maybeSingle();
-                      final checkUsername = await supabase
-                          .from("usuarios")
-                          .select()
-                          .eq("nombre_usuario", _usernameController.text)
-                          .maybeSingle();
-                      if (checkEmail != null) {
+                      final checkEmail = await db
+                          .collection('usuarios')
+                          .where('email', isEqualTo: _emailController.text)
+                          .get();
+                      final checkUsername = await db
+                          .collection('usuarios')
+                          .where('username',
+                              isEqualTo: _usernameController.text)
+                          .get();
+                      if (checkEmail.docs.isNotEmpty) {
                         setState(() {
                           _errorMessage =
                               'Ya existe un usuario asociado a ese email.';
                         });
-                      } else if (checkUsername != null) {
+                      } else if (checkUsername.docs.isNotEmpty) {
                         setState(() {
                           _errorMessage = 'El nombre de usuario ya existe.';
                         });
                       } else {
                         final user = <String, dynamic>{
-                          'nombre_usuario': _usernameController.text,
-                          'nombre': _nameController.text,
-                          'correo': _emailController.text,
-                          'contrasena': _passwordController.text,
+                          'username': _usernameController.text,
+                          'name': _nameController.text,
+                          'email': _emailController.text,
+                          'password': _passwordController.text,
+                          'role': 'usuario'
                         };
-                        await supabase.from('usuarios').insert(user);
+                        db.collection('usuarios').add(user).then(
+                            (DocumentReference doc) =>
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Usuario creado exitosamente'),
+                                  ),
+                                ));
                         Navigator.push(
                             context,
                             MaterialPageRoute(
