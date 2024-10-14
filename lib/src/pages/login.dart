@@ -2,6 +2,7 @@ import 'package:digital_menu/src/pages/signup.dart';
 import 'package:digital_menu/src/pages/home.dart';
 import 'package:digital_menu/src/pages/password_change.dart';
 import 'package:flutter/material.dart';
+import "package:shared_preferences/shared_preferences.dart";
 import '../widgets/button.dart';
 import '../widgets/input.dart';
 
@@ -9,6 +10,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
 final logo = Image.asset('logo.jpg');
+
+Future<void> storeUser(Map<String, dynamic> user) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('username', user['nombre_usuario']);
+  await prefs.setString('name', user['nombre']);
+  await prefs.setString('email', user['correo']);
+  await prefs.setString('userRole', user["rol"]);
+}
 
 class Login extends StatelessWidget {
   final String? successMessage;
@@ -148,6 +157,11 @@ class _LoginFormState extends State<LoginForm> {
                       } else {
                         final password = user['contrasena'] as String;
                         if (password == _passwordController.text) {
+                          storeUser(user);
+                          await supabase
+                              .from("usuarios")
+                              .update({'estado': 'activo'}).eq(
+                                  'nombre_usuario', _usernameController);
                           setState(() {
                             _errorMessage = '';
                             Navigator.push(

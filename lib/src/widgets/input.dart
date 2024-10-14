@@ -33,8 +33,8 @@ class _InputState extends State<Input> {
             decoration: InputDecoration(
               labelText: widget.labelText,
               labelStyle: const TextStyle(color: Colors.black),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
               focusedBorder: OutlineInputBorder(
                   borderSide:
                       const BorderSide(color: Color.fromARGB(255, 212, 10, 8)),
