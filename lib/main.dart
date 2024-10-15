@@ -22,6 +22,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DigitalMenu',
       theme: ThemeData(
+          primarySwatch: Colors.red,
+          highlightColor: Colors.red,
+          primaryColor: Colors.red,
           colorScheme: ColorScheme.fromSeed(
               seedColor: const Color.fromARGB(255, 212, 10, 8),
               brightness: Brightness.light),

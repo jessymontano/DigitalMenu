@@ -11,9 +11,10 @@ class Button extends StatelessWidget {
     return ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
+            maximumSize: Size(250, 100),
             backgroundColor: const Color.fromARGB(255, 212, 10, 8),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.fromLTRB(100, 20, 100, 20),
+            padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10))),
         child: Text(text));

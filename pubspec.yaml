@@ -37,6 +37,7 @@ dependencies:
   supabase_flutter: ^2.6.0
   http: ^1.2.2
   shared_preferences: ^2.2.3
+  easy_sidemenu: ^0.6.0
 
 dev_dependencies:
   flutter_test:
