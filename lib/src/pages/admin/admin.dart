@@ -13,7 +13,6 @@ class Admin extends StatefulWidget {
 class _AdminState extends State<Admin> {
   int _selectedIndex = 0; //Index del menú de abajo
 
-  //TODO: agregar pantalla de Productos
   final List<Widget> _adminOptions = [
     //pantallas que se muestran al elegir una opción del menú
     const Usuarios(),
