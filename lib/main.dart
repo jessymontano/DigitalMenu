@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'src/pages/login.dart';
+import 'src/pages/login/login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {

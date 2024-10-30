@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/button.dart';
-import '../widgets/input.dart';
+import '../../widgets/button.dart';
+import '../../widgets/input.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login.dart';
@@ -131,6 +131,7 @@ class _SignUpFormState extends State<SignUpForm> {
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Button(
+                  size: const Size(250, 100),
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
                       final checkEmail = await supabase

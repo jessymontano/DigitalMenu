@@ -1,8 +1,8 @@
-import "package:digital_menu/src/pages/admin.dart";
+import "package:digital_menu/src/pages/admin/admin.dart";
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
-import "../pages/configuracion.dart";
-import "../pages/home.dart";
+import "../pages/configuracion/configuracion.dart";
+import "../pages/home/home.dart";
 
 class NavBar extends StatelessWidget {
   final Widget body;

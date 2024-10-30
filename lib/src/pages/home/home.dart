@@ -1,6 +1,7 @@
-import 'package:digital_menu/src/widgets/platillos.dart';
+import 'package:digital_menu/src/pages/home/ordenes.dart';
+import 'package:digital_menu/src/pages/home/platillos.dart';
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
+import '../../widgets/navbar.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,7 +12,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
-  List<Widget> _homeOptions = [Platillos(), Text("ordenes")];
+  final List<Widget> _homeOptions = [const Platillos(), Ordenes()];
   @override
   Widget build(BuildContext context) {
     return NavBar(
@@ -31,7 +32,8 @@ class _HomeState extends State<Home> {
                   _selectedIndex = index;
                 });
               },
-              items: [
+              items: const [
+                //TODO: cambiar iconos y color del icono seleccionado
                 BottomNavigationBarItem(
                     icon: Icon(Icons.fastfood), label: "Platillos"),
                 BottomNavigationBarItem(

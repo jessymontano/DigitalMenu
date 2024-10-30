@@ -41,7 +41,6 @@ class _MenuState extends State<Menu> {
     setState(() {
       _menuList = [...platillosConTipo, ...bebidasConTipo];
     });
-    print(_menuList);
   }
 
   void editElement(Map<String, dynamic> element) {
@@ -72,8 +71,12 @@ class _MenuState extends State<Menu> {
   void deleteElement(Map<String, dynamic>? element) async {
     String tipo = isAdding ? typeValue : element?['tipo'] ?? '';
     String databaseName = tipo == 'platillo' ? 'platillos' : 'bebidas';
+    String? imagePath = element?['image'];
 
     if (element != null && element.containsKey('id_$tipo')) {
+      if (imagePath != null) {
+        await supabase.storage.from('img').remove(['images/$imagePath']);
+      }
       await supabase
           .from(databaseName)
           .delete()
@@ -128,8 +131,9 @@ class _MenuState extends State<Menu> {
   Widget build(BuildContext context) {
     return Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text("Administrar menu"),
+        const Text("Administrar menu"),
         Button(
+            size: const Size(200, 100),
             text: "Agregar",
             onPressed: () {
               addElement();
@@ -140,7 +144,7 @@ class _MenuState extends State<Menu> {
         Expanded(
             child: SingleChildScrollView(
           child: DataTable(
-              columns: [
+              columns: const [
                 DataColumn(label: Text("Tipo")),
                 DataColumn(label: Text("Nombre")),
                 DataColumn(label: Text("Descripción")),
@@ -156,7 +160,7 @@ class _MenuState extends State<Menu> {
                   DataCell(Text(elemento["descripcion"] ?? "Sin descripción")),
                   DataCell(Text(elemento["precio"].toString())),
                   DataCell(IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit),
                     onPressed: () {
                       editElement(elemento);
                     },
@@ -187,7 +191,7 @@ class _MenuState extends State<Menu> {
                                     selectedItem = null;
                                   });
                                 },
-                                icon: Icon(Icons.close)),
+                                icon: const Icon(Icons.close)),
                             Text(isEditing
                                 ? 'Editar Elemento'
                                 : 'Agregar Elemento'),
@@ -228,17 +232,17 @@ class _MenuState extends State<Menu> {
                           });
                         },
                       ),
-                      Text("Tipo"),
+                      const Text("Tipo"),
                       DropdownButton(
                           value: typeValue,
-                          items: [
+                          items: const [
                             DropdownMenuItem(
-                              child: Text("Platillo"),
                               value: 'platillo',
+                              child: Text("Platillo"),
                             ),
                             DropdownMenuItem(
-                              child: Text("Bebida"),
                               value: 'bebida',
+                              child: Text("Bebida"),
                             )
                           ],
                           onChanged: (value) {
@@ -248,6 +252,7 @@ class _MenuState extends State<Menu> {
                           }),
                       if (isAdding)
                         Button(
+                            size: const Size(250, 100),
                             text: "Agregar",
                             onPressed: () {
                               if (_formKey.currentState?.validate() ?? false) {
@@ -259,6 +264,7 @@ class _MenuState extends State<Menu> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Button(
+                                size: const Size(200, 100),
                                 text: "Guardar cambios",
                                 onPressed: () {
                                   if (_formKey.currentState?.validate() ??
@@ -266,10 +272,11 @@ class _MenuState extends State<Menu> {
                                     saveChanges(selectedItem);
                                   }
                                 }),
-                            SizedBox(
+                            const SizedBox(
                               width: 20,
                             ),
                             Button(
+                                size: const Size(200, 100),
                                 text: "Eliminar",
                                 onPressed: () {
                                   deleteElement(selectedItem);

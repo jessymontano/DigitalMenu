@@ -108,6 +108,7 @@ class _UsuariosState extends State<Usuarios> {
           const Text("Administrar usuarios"),
           if (!isEditing && !isAdding)
             Button(
+              size: const Size(250, 100),
               text: "Agregar usuario",
               onPressed: () {
                 addUser();
@@ -230,6 +231,7 @@ class _UsuariosState extends State<Usuarios> {
                                       }),
                                   if (isAdding)
                                     Button(
+                                        size: const Size(250, 100),
                                         text: "Agregar Usuario",
                                         onPressed: () {
                                           if (_formKey.currentState
@@ -244,6 +246,7 @@ class _UsuariosState extends State<Usuarios> {
                                           MainAxisAlignment.spaceAround,
                                       children: [
                                         Button(
+                                            size: const Size(200, 100),
                                             text: "Guardar cambios",
                                             onPressed: () {
                                               if (_formKey.currentState
@@ -257,6 +260,7 @@ class _UsuariosState extends State<Usuarios> {
                                           width: 20,
                                         ),
                                         Button(
+                                            size: const Size(200, 100),
                                             text: "Eliminar Usuario",
                                             onPressed: () {
                                               deleteUser(

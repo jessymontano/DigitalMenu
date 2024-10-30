@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/navbar.dart';
-import '../widgets/respaldos.dart';
+import '../../widgets/navbar.dart';
+import 'respaldos.dart';
 
 class Configuracion extends StatefulWidget {
   const Configuracion({super.key});
@@ -10,6 +10,8 @@ class Configuracion extends StatefulWidget {
 
 class _ConfiguracionState extends State<Configuracion> {
   int _selectedIndex = 0;
+
+  //TODO: agregar el resto de las pantallas de configuración
   final List<Widget> _configOptions = [
     const Text("Datos de la empresa"),
     const Text("Historial de facturación"),
@@ -27,7 +29,7 @@ class _ConfiguracionState extends State<Configuracion> {
     }
 
     return NavBar(
-        title: Text(
+        title: const Text(
           "Configuración General",
           style: TextStyle(color: Colors.white),
         ),
@@ -40,10 +42,11 @@ class _ConfiguracionState extends State<Configuracion> {
                 Container(
                   width: 300,
                   height: 600,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       border: Border(
                           right: BorderSide(color: Colors.black, width: 2))),
                   child: ListView(
+                    //TODO: cambiar color de la opción seleccionada
                     children: [
                       ListTile(
                           title: const Text("Datos de la empresa"),

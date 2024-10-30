@@ -1,10 +1,7 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:digital_menu/src/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:path/path.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 
 class ImageUploader extends StatefulWidget {
@@ -51,6 +48,9 @@ class _ImageUploaderState extends State<ImageUploader> {
 
   @override
   Widget build(BuildContext context) {
-    return Button(text: "Subir imagen", onPressed: () => _pickImage(context));
+    return Button(
+        size: const Size(200, 100),
+        text: "Subir imagen",
+        onPressed: () => _pickImage(context));
   }
 }

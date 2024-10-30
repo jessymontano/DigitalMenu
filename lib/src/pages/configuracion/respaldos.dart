@@ -93,6 +93,7 @@ class _RespaldosState extends State<Respaldos> {
                   children: [Icon(Icons.save), Text("Respaldo manual")],
                 ),
                 Button(
+                    size: const Size(250, 100),
                     text: "Crear respaldo",
                     onPressed: () async {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,6 +124,7 @@ class _RespaldosState extends State<Respaldos> {
                           DataCell(Text(backup["date"]!)),
                           DataCell(Text(backup["time"]!)),
                           DataCell(Button(
+                            size: const Size(150, 70),
                             onPressed: () => restoreBackup(backup['fileName']!),
                             text: "Restaurar",
                           ))

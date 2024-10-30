@@ -1,10 +1,10 @@
-import 'package:digital_menu/src/pages/signup.dart';
-import 'package:digital_menu/src/pages/home.dart';
-import 'package:digital_menu/src/pages/password_change.dart';
+import 'package:digital_menu/src/pages/login/signup.dart';
+import 'package:digital_menu/src/pages/home/home.dart';
+import 'package:digital_menu/src/pages/login/password_change.dart';
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
-import '../widgets/button.dart';
-import '../widgets/input.dart';
+import '../../widgets/button.dart';
+import '../../widgets/input.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -17,6 +17,7 @@ Future<void> storeUser(Map<String, dynamic> user) async {
   await prefs.setString('name', user['nombre']);
   await prefs.setString('email', user['correo']);
   await prefs.setString('userRole', user["rol"]);
+  await prefs.setString('userId', user['id_usuario'].toString());
 }
 
 class Login extends StatelessWidget {
@@ -40,7 +41,7 @@ class Login extends StatelessWidget {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [LoginForm(), logo],
+              children: [const LoginForm(), logo],
             );
           },
         ),
@@ -143,6 +144,7 @@ class _LoginFormState extends State<LoginForm> {
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Button(
+                  size: const Size(250, 100),
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
                       final user = await supabase

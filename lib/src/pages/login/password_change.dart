@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/button.dart';
-import '../widgets/input.dart';
+import '../../widgets/button.dart';
+import '../../widgets/input.dart';
 import 'login.dart';
 
 class ChangePassword extends StatelessWidget {
@@ -57,7 +57,7 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: RichText(
-              text: TextSpan(
+              text: const TextSpan(
                 text:
                     'Introduzca su dirección de correo electrónico a continuación y se le enviará \nun e-mail con un código de 6 dígitos para restablecer su contraseña.',
               ),
@@ -79,6 +79,7 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: Button(
+              size: const Size(250, 100),
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? false) {
                   //aqui va el codigo para la recuperación

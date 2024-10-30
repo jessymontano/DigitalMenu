@@ -1,6 +1,7 @@
-import 'package:digital_menu/src/widgets/menu.dart';
+import 'package:digital_menu/src/pages/admin/menu.dart';
 import 'package:digital_menu/src/widgets/navbar.dart';
-import 'package:digital_menu/src/widgets/usuarios.dart';
+import 'package:digital_menu/src/pages/admin/productos_admin.dart';
+import 'package:digital_menu/src/pages/admin/usuarios.dart';
 import 'package:flutter/material.dart';
 
 class Admin extends StatefulWidget {
@@ -12,12 +13,12 @@ class Admin extends StatefulWidget {
 class _AdminState extends State<Admin> {
   int _selectedIndex = 0; //Index del menú de abajo
 
-  //TODO: agregar pantalla de Menu y Productos, agregar const
+  //TODO: agregar pantalla de Productos
   final List<Widget> _adminOptions = [
     //pantallas que se muestran al elegir una opción del menú
-    Usuarios(),
-    Menu(),
-    Text('productos')
+    const Usuarios(),
+    const Menu(),
+    const ProductosAdmin()
   ];
 
   @override
@@ -40,8 +41,8 @@ class _AdminState extends State<Admin> {
                     _selectedIndex = index;
                   });
                 },
-                items: [
-                  //TODO: cambiar íconos, usar const
+                items: const [
+                  //TODO: cambiar íconos
                   BottomNavigationBarItem(
                       label: "Usuarios",
                       icon: Icon(Icons.supervised_user_circle)),
