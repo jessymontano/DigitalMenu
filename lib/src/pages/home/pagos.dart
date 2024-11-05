@@ -1,5 +1,5 @@
 import 'package:digital_menu/src/widgets/calculadora.dart';
-import 'package:digital_menu/src/widgets/generar_reporte.dart';
+import 'package:digital_menu/src/pages/home/home.dart';
 import 'package:digital_menu/src/widgets/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:digital_menu/src/widgets/input.dart';
@@ -136,7 +136,12 @@ class _PagosState extends State<Pagos> {
                                 Button(
                                     text: "Cancelar",
                                     size: Size(200, 100),
-                                    onPressed: () {}),
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Home()));
+                                    }),
                                 SizedBox(
                                   width: 10,
                                 ),
@@ -144,6 +149,10 @@ class _PagosState extends State<Pagos> {
                                   size: Size(200, 100),
                                   onPressed: () async {
                                     await insertOrder();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Home()));
                                   },
                                   text: "Pagar",
                                 ),

@@ -27,6 +27,8 @@ class _HomeState extends State<Home> {
                 )),
           ),
           BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.red,
               onTap: (index) {
                 setState(() {
                   _selectedIndex = index;
