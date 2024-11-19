@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:side_panel/side_panel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:digital_menu/src/widgets/input.dart';
 import 'package:digital_menu/src/widgets/button.dart';
@@ -15,54 +17,103 @@ class ProductosAdmin extends StatefulWidget {
 
 class __ProductosAdminStateState extends State<ProductosAdmin> {
   List<Map<String, dynamic>> _productsList = [];
+  SidePanelController _sidePanelController = SidePanelController();
   bool isEditing = false;
   bool isAdding = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Map<String, dynamic>? selectedItem;
-  late TextEditingController _nameController;
-  late TextEditingController _descriptionController;
-  late TextEditingController _priceController;
-  late TextEditingController _unidadController;
-  late TextEditingController _cantidadController;
-  late String typeValue;
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _priceController = TextEditingController();
+  TextEditingController _unidadController = TextEditingController();
+  TextEditingController _cantidadController = TextEditingController();
+  TextEditingController _precioBebidaController = TextEditingController();
+  String typeValue = "ingrediente";
   String? uploadedFileName;
 
   void getProducts() async {
-    var listaProductos = await supabase.from('productos').select('*');
+    var listaIngredientes = await supabase.from('ingredientes').select('*');
+    List<Map<String, dynamic>> ingredientesConTipo =
+        listaIngredientes.map((ingrediente) {
+      return {...ingrediente, "tipo": "ingrediente"};
+    }).toList();
+    var listaBebidas = await supabase.from("bebidas").select('*');
+    List<Map<String, dynamic>> bebidasConTipo = listaBebidas.map((bebida) {
+      return {...bebida, "tipo": "bebida"};
+    }).toList();
     setState(() {
-      _productsList = listaProductos;
+      _productsList = [...ingredientesConTipo, ...bebidasConTipo];
     });
   }
 
-  void editProduct(Map<String, dynamic> producto) {
+  String getImageUrl(Map<String, dynamic> elemento) {
+    String? imageName = elemento['imagen'];
+    if (imageName != null) {
+      return "https://kgxonqwulbraeezxplxw.supabase.co/storage/v1/object/public/img/images/$imageName";
+    }
+    return "https://via.placeholder.com/150";
+  }
+
+  void editIngredient(Map<String, dynamic> ingrediente) {
     setState(() {
       isEditing = true;
       isAdding = false;
-      selectedItem = producto;
-      _nameController = TextEditingController(text: selectedItem?['nombre']);
-      _descriptionController =
-          TextEditingController(text: selectedItem?['descripcion']);
-      _priceController =
-          TextEditingController(text: selectedItem?['precio'].toString());
-      typeValue = selectedItem?['categoria'];
-      _unidadController =
-          TextEditingController(text: selectedItem?['unidad_medida']);
-      _cantidadController = TextEditingController(
-          text: selectedItem?['cantidad_disponible'].toString());
+      selectedItem = ingrediente;
+      typeValue = 'ingrediente';
+      _nameController.text = selectedItem?['nombre'];
+      _descriptionController.text = selectedItem?['descripcion'];
+      _priceController.text = selectedItem?['precio_compra'].toString() ?? "0";
+      typeValue = selectedItem?['tipo'];
+      _unidadController.text = selectedItem?['unidad_medida'];
+      _cantidadController.text =
+          selectedItem?['cantidad_disponible'].toString() ?? "0";
     });
+    _sidePanelController.showRightPanel();
   }
 
-  void addProduct() {
+  void editDrink(Map<String, dynamic> bebida) {
+    setState(() {
+      isEditing = true;
+      isAdding = false;
+      selectedItem = bebida;
+      typeValue = "bebida";
+      _nameController.text = selectedItem?['nombre'];
+      _descriptionController.text = selectedItem?['descripcion'];
+      _priceController.text = selectedItem?['precio_compra'].toString() ?? "0";
+      typeValue = selectedItem?['tipo'];
+      _cantidadController.text =
+          selectedItem?['cantidad_disponible'].toString() ?? "0";
+      _precioBebidaController.text = selectedItem?['precio'].toString() ?? '0';
+    });
+    _sidePanelController.showRightPanel();
+  }
+
+  void addIngredient() {
     setState(() {
       isEditing = false;
       isAdding = true;
-      _nameController = TextEditingController();
-      _descriptionController = TextEditingController();
-      _priceController = TextEditingController();
+      _nameController.clear();
+      _descriptionController.clear();
+      _priceController.clear();
       typeValue = 'ingrediente';
-      _unidadController = TextEditingController();
-      _cantidadController = TextEditingController();
+      _unidadController.clear();
+      _cantidadController.clear();
     });
+    _sidePanelController.showRightPanel();
+  }
+
+  void addDrink() {
+    setState(() {
+      isEditing = false;
+      isAdding = true;
+      _nameController.clear();
+      _descriptionController.clear();
+      _priceController.clear();
+      typeValue = 'bebida';
+      _cantidadController.clear();
+      _precioBebidaController.clear();
+    });
+    _sidePanelController.showRightPanel();
   }
 
   void deleteProduct(Map<String, dynamic>? producto) async {
@@ -72,43 +123,77 @@ class __ProductosAdminStateState extends State<ProductosAdmin> {
       if (imagePath != null) {
         await supabase.storage.from('img').remove(['images/$imagePath']);
       }
-      await supabase
-          .from('productos')
-          .delete()
-          .eq('id_producto', producto["id_producto"]);
-      getProducts();
-      setState(() {
-        isAdding = false;
-        isEditing = false;
-        selectedItem = null;
-      });
+      if (producto['tipo'] == "ingrediente") {
+        await supabase
+            .from('ingredientes')
+            .delete()
+            .eq('id_ingrediente', producto["id_ingrediente"]);
+        getProducts();
+        setState(() {
+          isAdding = false;
+          isEditing = false;
+          selectedItem = null;
+        });
+      } else {
+        await supabase
+            .from('bebidas')
+            .delete()
+            .eq('id_bebida', producto["id_bebida"]);
+        getProducts();
+        setState(() {
+          isAdding = false;
+          isEditing = false;
+          selectedItem = null;
+        });
+      }
     }
+    _sidePanelController.hideRightPanel();
   }
 
   void saveChanges(Map<String, dynamic>? producto) async {
-    if (producto != null && producto.containsKey('id_producto')) {
-      await supabase.from('productos').update({
+    if (producto != null && producto.containsKey('id_ingrediente')) {
+      await supabase.from('ingredientes').update({
         'nombre': _nameController.text,
         'descripcion': _descriptionController.text.isEmpty
             ? 'Sin descripción'
             : _descriptionController.text,
-        'precio': double.tryParse(_priceController.text),
+        'precio_compra': double.tryParse(_priceController.text),
         if (uploadedFileName != null) 'imagen': uploadedFileName,
         'unidad_medida': _unidadController.text,
         'cantidad_disponible': int.tryParse(_cantidadController.text),
-        'categoria': typeValue
-      }).eq('id_producto', producto['id_producto']);
+      }).eq('id_ingrediente', producto['id_ingrediente']);
+    } else if (producto != null && producto.containsKey('id_bebida')) {
+      await supabase.from('bebidas').update({
+        'nombre': _nameController.text,
+        'descripcion': _descriptionController.text.isEmpty
+            ? 'Sin descripción'
+            : _descriptionController.text,
+        'precio_compra': double.tryParse(_priceController.text),
+        'precio': double.tryParse(_precioBebidaController.text),
+        if (uploadedFileName != null) 'imagen': uploadedFileName,
+        'cantidad_disponible': int.tryParse(_cantidadController.text),
+      }).eq('id_bebida', producto['id_bebida']);
+    } else if (producto == null && typeValue == 'ingrediente') {
+      await supabase.from('ingredientes').insert({
+        'nombre': _nameController.text,
+        'descripcion': _descriptionController.text.isEmpty
+            ? 'Sin descripción'
+            : _descriptionController.text,
+        'precio_compra': double.tryParse(_priceController.text),
+        if (uploadedFileName != null) 'imagen': uploadedFileName,
+        'unidad_medida': _unidadController.text,
+        'cantidad_disponible': int.tryParse(_cantidadController.text),
+      });
     } else {
-      await supabase.from('productos').insert({
+      await supabase.from('bebidas').insert({
         'nombre': _nameController.text,
         'descripcion': _descriptionController.text.isEmpty
             ? 'Sin descripción'
             : _descriptionController.text,
-        'precio': double.tryParse(_priceController.text),
+        'precio_compra': double.tryParse(_priceController.text),
+        'precio': double.tryParse(_precioBebidaController.text),
         if (uploadedFileName != null) 'imagen': uploadedFileName,
-        'unidad_medida': _unidadController.text,
         'cantidad_disponible': int.tryParse(_cantidadController.text),
-        'categoria': typeValue
       });
     }
     getProducts();
@@ -117,6 +202,7 @@ class __ProductosAdminStateState extends State<ProductosAdmin> {
       isAdding = false;
       selectedItem = null;
     });
+    _sidePanelController.hideRightPanel();
   }
 
   @override
@@ -127,206 +213,269 @@ class __ProductosAdminStateState extends State<ProductosAdmin> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text("Administrar productos"),
-          if (!isEditing && !isAdding)
-            Button(
-              size: Size(200, 150),
-              text: "Agregar producto",
-              onPressed: () {
-                addProduct();
-              },
-            )
-        ],
-      ),
-      Expanded(
-          flex: 3,
-          child: Row(
-            children: [
-              Expanded(
-                  child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text("Categoría")),
-                      DataColumn(label: Text("Nombre")),
-                      DataColumn(label: Text("Descripción")),
-                      DataColumn(label: Text("Precio")),
-                      DataColumn(label: Text("Cantidad disponible")),
-                      DataColumn(label: Text("Unidad de medida")),
-                      DataColumn(label: Text("Editar"))
-                    ],
-                    rows: _productsList.map((producto) {
-                      return DataRow(cells: [
-                        DataCell(Text(producto['categoria'])),
-                        DataCell(
-                          Text(producto['nombre']),
-                        ),
-                        DataCell(
-                            Text(producto['descripcion'] ?? 'Sin descripción')),
-                        DataCell(Text(producto["precio"].toString())),
-                        DataCell(
-                            Text(producto["cantidad_disponible"].toString())),
-                        DataCell(Text(producto['unidad_medida'])),
-                        DataCell(IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            editProduct(producto);
-                          },
-                        ))
-                      ]);
-                    }).toList()),
-              )),
-              if (isEditing || isAdding)
-                Expanded(
-                    flex: 1,
-                    child: Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                        child: SingleChildScrollView(
-                            child: Form(
-                                key: _formKey,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    const VerticalDivider(
-                                      thickness: 2,
+    return Expanded(
+        child: SidePanel(
+            controller: _sidePanelController,
+            right: Panel(
+                size: 500,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    VerticalDivider(
+                      width: 10,
+                      color: Colors.grey,
+                    ),
+                    SingleChildScrollView(
+                        child: Form(
+                            key: _formKey,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isEditing = false;
+                                                isAdding = false;
+                                                selectedItem = null;
+                                                _sidePanelController
+                                                    .hideRightPanel();
+                                              });
+                                            },
+                                            icon: Icon(Icons.close)),
+                                        SizedBox(
+                                          width: 350,
+                                        )
+                                      ]),
+                                  Text(
+                                    isEditing
+                                        ? 'Editar información de producto'
+                                        : 'Agregar nuevo producto',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  if (isEditing)
+                                    Image.network(
+                                      getImageUrl(selectedItem!),
+                                      width: 100,
+                                      height: 100,
                                     ),
-                                    Column(children: [
-                                      Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    isEditing = false;
-                                                    isAdding = false;
-                                                    selectedItem = null;
-                                                  });
-                                                },
-                                                icon: Icon(Icons.close)),
-                                            Text(isEditing
-                                                ? 'Editar información de producto'
-                                                : 'Agregar nuevo producto'),
-                                          ]),
-                                      Input(
-                                        controller: _nameController,
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Input(
+                                    controller: _nameController,
+                                    hintText: "",
+                                    labelText: 'Nombre del producto',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Ingrese un nombre';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  Input(
+                                    controller: _descriptionController,
+                                    hintText: "",
+                                    labelText: 'Descripción',
+                                  ),
+                                  if (typeValue == 'bebida')
+                                    Input(
+                                      controller: _precioBebidaController,
+                                      hintText: "",
+                                      labelText: "Precio de venta",
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Ingrese un precio';
+                                        } else if (double.tryParse(value) ==
+                                            null) {
+                                          return 'El precio debe ser un número';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  Input(
+                                      hintText: "",
+                                      labelText: typeValue == 'bebida'
+                                          ? 'Precio de compra'
+                                          : 'Precio',
+                                      controller: _priceController),
+                                  Input(
+                                    controller: _cantidadController,
+                                    hintText: "",
+                                    labelText: "Cantidad disponible",
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Ingrese una cantidad';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  if (typeValue == 'ingrediente')
+                                    Input(
                                         hintText: "",
-                                        labelText: 'Nombre del producto',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Ingrese un nombre';
+                                        labelText: "Unidad de medida",
+                                        controller: _unidadController),
+                                  ImageUploader(
+                                    onImageUploaded: (fileName) {
+                                      setState(() {
+                                        uploadedFileName = fileName;
+                                      });
+                                    },
+                                  ),
+                                  if (isAdding)
+                                    Button(
+                                        size: Size(250, 100),
+                                        text: "Agregar Producto",
+                                        onPressed: () {
+                                          if (_formKey.currentState
+                                                  ?.validate() ??
+                                              false) {
+                                            saveChanges(null);
                                           }
-                                          return null;
-                                        },
-                                      ),
-                                      Input(
-                                        controller: _descriptionController,
-                                        hintText: "",
-                                        labelText: 'Descripción',
-                                      ),
-                                      Input(
-                                        controller: _priceController,
-                                        hintText: "",
-                                        labelText: "Precio",
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Ingrese un precio';
-                                          } else if (double.tryParse(value) ==
-                                              null) {
-                                            return 'El precio debe ser un número';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                      ImageUploader(
-                                        onImageUploaded: (fileName) {
-                                          setState(() {
-                                            uploadedFileName = fileName;
-                                          });
-                                        },
-                                      ),
-                                      Input(
-                                        controller: _cantidadController,
-                                        hintText: "",
-                                        labelText: "Cantidad disponible",
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Ingrese una cantidad';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                      const Text("Categoria"),
-                                      DropdownButton(
-                                          value: typeValue,
-                                          items: const [
-                                            DropdownMenuItem(
-                                              value: 'ingrediente',
-                                              child: Text("Ingrediente"),
-                                            ),
-                                            DropdownMenuItem(
-                                              value: 'bebida',
-                                              child: Text("Bebida"),
-                                            )
-                                          ],
-                                          onChanged: (value) {
-                                            setState(() {
-                                              typeValue = value!;
-                                            });
-                                          }),
-                                      if (isAdding)
+                                        }),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  if (isEditing)
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
                                         Button(
-                                            size: Size(150, 100),
-                                            text: "Agregar Producto",
+                                            size: Size(200, 100),
+                                            text: "Eliminar Producto",
+                                            onPressed: () {
+                                              deleteProduct(
+                                                  selectedItem?['id_producto']);
+                                              setState(() {
+                                                isEditing = false;
+                                                selectedItem = null;
+                                              });
+                                            }),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        Button(
+                                            size: Size(200, 100),
+                                            text: "Guardar cambios",
                                             onPressed: () {
                                               if (_formKey.currentState
                                                       ?.validate() ??
                                                   false) {
-                                                saveChanges(null);
+                                                saveChanges(selectedItem);
                                               }
                                             }),
-                                      if (isEditing)
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            Button(
-                                                size: Size(200, 100),
-                                                text: "Guardar cambios",
-                                                onPressed: () {
-                                                  if (_formKey.currentState
-                                                          ?.validate() ??
-                                                      false) {
-                                                    saveChanges(selectedItem?[
-                                                        'id_producto']);
-                                                  }
-                                                }),
-                                            SizedBox(
-                                              width: 20,
-                                            ),
-                                            Button(
-                                                size: Size(200, 100),
-                                                text: "Eliminar Producto",
-                                                onPressed: () {
-                                                  deleteProduct(selectedItem?[
-                                                      'id_producto']);
-                                                  setState(() {
-                                                    isEditing = false;
-                                                    selectedItem = null;
-                                                  });
-                                                })
-                                          ],
-                                        )
-                                    ])
-                                  ],
-                                )))))
-            ],
-          ))
-    ]);
+                                      ],
+                                    )
+                                ])))
+                  ],
+                )),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Administrar productos",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 26)),
+                    Button(
+                      size: Size(200, 150),
+                      text: "Agregar ingrediente",
+                      onPressed: () {
+                        addIngredient();
+                      },
+                    ),
+                    Button(
+                      size: Size(200, 150),
+                      text: "Agregar bebida",
+                      onPressed: () {
+                        addDrink();
+                      },
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Expanded(
+                    child: SingleChildScrollView(
+                  child: DataTable(
+                      headingRowColor: MaterialStateColor.resolveWith((states) {
+                        return Colors.black;
+                      }),
+                      columns: const [
+                        DataColumn(
+                            label: Text("Categoría",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text("Nombre",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text("Descripción",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text("Precio",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text("Cantidad disponible",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text("Editar",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)))
+                      ],
+                      rows: _productsList.map((producto) {
+                        return DataRow(cells: [
+                          DataCell(Text(producto['tipo'])),
+                          DataCell(
+                            Text(producto['nombre']),
+                          ),
+                          DataCell(Text(
+                              producto['descripcion'] ?? 'Sin descripción')),
+                          DataCell(Text(producto["precio_compra"].toString())),
+                          DataCell(
+                              Text(producto["cantidad_disponible"].toString())),
+                          DataCell(IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              if (producto['tipo'] == 'ingrediente') {
+                                editIngredient(producto);
+                              } else {
+                                editDrink(producto);
+                              }
+                            },
+                          ))
+                        ]);
+                      }).toList()),
+                ))
+              ],
+            )));
   }
 }

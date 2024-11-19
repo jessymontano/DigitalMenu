@@ -1,4 +1,5 @@
 import "package:digital_menu/src/pages/admin/admin.dart";
+import "package:digital_menu/src/pages/productos/productos_home.dart";
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
 import "../pages/configuracion/configuracion.dart";
@@ -29,7 +30,7 @@ class NavBar extends StatelessWidget {
           },
         ),
       ),
-      drawer: SideBar(),
+      drawer: const SideBar(),
       body: body,
     ));
   }
@@ -59,9 +60,17 @@ class _SideBarState extends State<SideBar> {
     });
   }
 
+  Future<void> signout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('username');
+    await prefs.remove('name');
+    await prefs.remove('email');
+    await prefs.remove('userRole');
+    await prefs.remove('userId');
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getUser();
   }
@@ -78,7 +87,7 @@ class _SideBarState extends State<SideBar> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.portrait_rounded,
                     size: 50,
                   ),
@@ -99,7 +108,12 @@ class _SideBarState extends State<SideBar> {
             ),
             ListTile(
               title: const Text('Productos'),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProductosHome()));
+              },
             ),
             ListTile(
               title: const Text('Reportes'),
@@ -122,6 +136,12 @@ class _SideBarState extends State<SideBar> {
                         builder: (context) => const Configuracion()));
               },
             ),
+            ListTile(
+                title: const Text("Salir"),
+                onTap: () {
+                  signout();
+                  Navigator.pop(context);
+                })
           ])),
           Container(
             height: 50,

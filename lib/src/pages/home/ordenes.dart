@@ -29,7 +29,6 @@ class _OrdenesState extends State<Ordenes> {
         tempOrders.add(order);
       }
     }
-    print(tempOrders);
     setState(() {
       orders = tempOrders;
       completeOrders = tempComplete.reversed.toList();

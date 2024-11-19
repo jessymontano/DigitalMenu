@@ -1,33 +1,22 @@
-import 'package:digital_menu/src/pages/home/ordenes.dart';
-import 'package:digital_menu/src/pages/home/platillos.dart';
+import 'package:digital_menu/src/pages/productos/compras.dart';
+import 'package:digital_menu/src/pages/productos/productos.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/navbar.dart';
 
-class Home extends StatefulWidget {
-  final String? successMessage;
-  const Home({super.key, this.successMessage});
+class ProductosHome extends StatefulWidget {
+  const ProductosHome({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<ProductosHome> createState() => _ProductosHomeState();
 }
 
-class _HomeState extends State<Home> {
+class _ProductosHomeState extends State<ProductosHome> {
   int _selectedIndex = 0;
-  final List<Widget> _homeOptions = [const Platillos(), Ordenes()];
+  final List<Widget> _homeOptions = [const Productos(), Compras()];
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.successMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(widget.successMessage!),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    });
     return NavBar(
-        title: const Text("Ordenar"),
+        title: const Text(""),
         body: Column(children: [
           Expanded(
             child: Container(
@@ -48,9 +37,9 @@ class _HomeState extends State<Home> {
               items: const [
                 //TODO: cambiar iconos y color del icono seleccionado
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.fastfood), label: "Platillos"),
+                    icon: Icon(Icons.inventory_2_outlined), label: "Productos"),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.list_alt), label: "Órdenes")
+                    icon: Icon(Icons.shopping_cart), label: "Compras")
               ])
         ]));
   }
