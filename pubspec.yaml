@@ -47,6 +47,8 @@ dependencies:
   open_file: ^3.5.4
   side_panel: ^0.1.0
   animations: ^2.0.11
+  fluttertoast: ^8.2.8
+  fl_chart: ^0.69.1
 
 dev_dependencies:
   flutter_test:

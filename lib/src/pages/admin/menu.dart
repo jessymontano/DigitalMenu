@@ -1,6 +1,5 @@
 import 'package:digital_menu/src/widgets/button.dart';
 import 'package:digital_menu/src/widgets/input.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -27,27 +26,18 @@ class _MenuState extends State<Menu> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _cantidadController = TextEditingController();
-  String typeValue = "platillo";
   String? uploadedFileName;
   List<Map<String, dynamic>> ingredientes = [];
   List<dynamic> ingredientesSeleccionados = [];
-  Map<String, dynamic>? selectedIngredient;
+  List<dynamic> ingredientesExistentes = [];
+  Map<String, dynamic> selectedIngredient = {};
 
   Future<void> getMenu() async {
     var platillos = await supabase
         .from('platillos')
         .select('id_platillo, nombre, descripcion, precio, imagen');
-    List<Map<String, dynamic>> platillosConTipo = platillos.map((platillo) {
-      return {...platillo, "tipo": "platillo"};
-    }).toList();
-    var bebidas = await supabase
-        .from("bebidas")
-        .select("id_bebida, nombre, descripcion, precio, imagen");
-    List<Map<String, dynamic>> bebidasConTipo = bebidas.map((bebida) {
-      return {...bebida, "tipo": "bebida"};
-    }).toList();
     setState(() {
-      _menuList = [...platillosConTipo, ...bebidasConTipo];
+      _menuList = platillos;
     });
   }
 
@@ -56,7 +46,9 @@ class _MenuState extends State<Menu> {
         params: {'id_platillo_input': idPlatillo});
     setState(() {
       ingredientesSeleccionados = resultado;
+      ingredientesExistentes = List.from(resultado);
     });
+    print(ingredientesSeleccionados);
   }
 
   Future<void> getIngredients() async {
@@ -64,6 +56,7 @@ class _MenuState extends State<Menu> {
     setState(() {
       ingredientes = resultado;
     });
+    print(ingredientes);
   }
 
   String getImageUrl(Map<String, dynamic> elemento) {
@@ -82,7 +75,6 @@ class _MenuState extends State<Menu> {
       _nameController.text = selectedItem?['nombre'];
       _descriptionController.text = selectedItem?['descripcion'];
       _priceController.text = selectedItem?['precio'].toString() ?? '0';
-      typeValue = selectedItem?['tipo'];
     });
   }
 
@@ -93,23 +85,25 @@ class _MenuState extends State<Menu> {
       _nameController.text = "";
       _descriptionController.text = "";
       _priceController.text = "";
-      typeValue = "platillo";
+      ingredientesSeleccionados = [];
     });
   }
 
   void deleteElement(Map<String, dynamic>? element) async {
-    String tipo = isAdding ? typeValue : element?['tipo'] ?? '';
-    String databaseName = tipo == 'platillo' ? 'platillos' : 'bebidas';
     String? imagePath = element?['image'];
 
-    if (element != null && element.containsKey('id_$tipo')) {
+    if (element != null && element.containsKey('id_platillo')) {
       if (imagePath != null) {
         await supabase.storage.from('img').remove(['images/$imagePath']);
       }
       await supabase
-          .from(databaseName)
+          .from('ingredientes_por_platillo')
           .delete()
-          .eq('id_$tipo', element["id_$tipo"]);
+          .eq('id_platillo', element['id_platillo']);
+      await supabase
+          .from('platillos')
+          .delete()
+          .eq('id_platillo', element["id_platillo"]);
       getMenu();
       setState(() {
         isAdding = false;
@@ -119,47 +113,18 @@ class _MenuState extends State<Menu> {
     }
   }
 
-  void addIngredient() {
-    if (selectedIngredient != null && _cantidadController.text.isNotEmpty) {
-      setState(() {
-        ingredientesSeleccionados.add({
-          "id_platillo": selectedItem?['id_platillo'],
-          'id_ingrediente': selectedIngredient?['id_ingrediente'],
-          'nombre': selectedIngredient?['nombre'],
-          'unidad_medida': selectedIngredient?['unidad_medida'],
-          "cantidad": int.tryParse(_cantidadController.text),
-        });
-        selectedIngredient = null;
-        _cantidadController.clear();
-      });
-    }
-  }
-
-  void removeIngredient(int index) {
-    setState(() {
-      ingredientesSeleccionados.removeAt(index);
-    });
-  }
-
-  void confirmIngredients() {
-    print("Lista de ingredientes confirmada: $ingredientesSeleccionados");
-  }
-
   void saveChanges(Map<String, dynamic>? element) async {
-    String tipo = isAdding ? typeValue : element?['tipo'] ?? '';
-    String databaseName = tipo == 'platillo' ? 'platillos' : 'bebidas';
-
-    if (element != null && element.containsKey('id_$tipo')) {
-      await supabase.from(databaseName).update({
+    if (element != null && element.containsKey('id_platillo')) {
+      await supabase.from('platillos').update({
         'nombre': _nameController.text,
         'descripcion': _descriptionController.text.isEmpty
             ? 'Sin descripción'
             : _descriptionController.text,
         'precio': double.tryParse(_priceController.text),
         if (uploadedFileName != null) 'imagen': uploadedFileName,
-      }).eq('id_$tipo', element['id_$tipo']);
+      }).eq('id_platillo', element['id_platillo']);
     } else {
-      await supabase.from(databaseName).insert({
+      await supabase.from('platillos').insert({
         'nombre': _nameController.text,
         'descripcion': _descriptionController.text.isEmpty
             ? 'Sin descripción'
@@ -174,6 +139,57 @@ class _MenuState extends State<Menu> {
       isAdding = false;
       selectedItem = null;
     });
+  }
+
+  Future<void> saveIngredients() async {
+    int platilloId = selectedItem?['id_platillo'];
+    print(ingredientesSeleccionados);
+    print(ingredientesExistentes);
+    List<dynamic> ingredientesAgregados = ingredientesSeleccionados
+        .where((modificado) => !ingredientesExistentes.any((inicial) =>
+            inicial['id_ingrediente'] == modificado['id_ingrediente']))
+        .toList();
+
+    List<dynamic> ingredientesEliminados = ingredientesExistentes
+        .where((inicial) => !ingredientesSeleccionados.any((modificado) =>
+            inicial['id_ingrediente'] == modificado['id_ingrediente']))
+        .toList();
+
+    for (var ingrediente in ingredientesAgregados) {
+      await supabase.from('ingredientes_por_platillo').insert({
+        'id_platillo': platilloId,
+        'id_ingrediente': ingrediente['id_ingrediente'],
+        'cantidad': ingrediente['cantidad'],
+      });
+    }
+
+    for (var ingrediente in ingredientesEliminados) {
+      await supabase
+          .from('ingredientes_por_platillo')
+          .delete()
+          .eq('id_platillo', platilloId)
+          .eq('id_ingrediente', ingrediente['id_ingrediente']);
+    }
+
+    for (var modificado in ingredientesSeleccionados) {
+      var inicial = ingredientesExistentes.firstWhere(
+          (inicial) =>
+              inicial['id_ingrediente'] == modificado['id_ingrediente'],
+          orElse: () => null);
+
+      if (inicial != null && inicial['cantidad'] != modificado['cantidad']) {
+        await supabase
+            .from('ingredientes_por_platillo')
+            .update({'cantidad': modificado['cantidad']})
+            .eq('id_platillo', platilloId)
+            .eq('id_ingrediente', modificado['id_ingrediente']);
+      }
+    }
+    setState(() {
+      selectedIngredient = {};
+      _cantidadController.clear();
+    });
+    await getDishIngredients(platilloId);
   }
 
   @override
@@ -194,75 +210,127 @@ class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     void showIngredientsModal() {
-      getDishIngredients(selectedItem?['id_platillo']);
       showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Agregar ingredientes"),
+              title: const Text("Agregar ingredientes"),
               content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  DropdownButtonFormField(
-                      items: ingredientes
-                          .map((ingrediente) => DropdownMenuItem(
-                              value: ingrediente,
-                              child: Text(ingrediente['nombre'])))
-                          .toList(),
-                      onChanged: (value) {
+                  DropdownButtonFormField<Map<String, dynamic>>(
+                    hint: const Text("Seleccionar ingrediente"),
+                    items: ingredientes.map((ingrediente) {
+                      return DropdownMenuItem<Map<String, dynamic>>(
+                        value: ingrediente,
+                        child: Text(ingrediente['nombre'] ?? "sin nombre"),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      print(value);
+                      setState(() {
+                        selectedIngredient = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _cantidadController,
+                    decoration: const InputDecoration(
+                      labelText: "Cantidad",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      if (selectedIngredient != null &&
+                          _cantidadController.text.isNotEmpty) {
                         setState(() {
-                          selectedIngredient = value;
+                          if (selectedIngredient != null) {
+                            ingredientesSeleccionados.add({
+                              ...selectedIngredient,
+                              "cantidad":
+                                  int.tryParse(_cantidadController.text),
+                            });
+                            print(ingredientesSeleccionados);
+                          }
+                          selectedIngredient =
+                              {}; // Limpiar el ingrediente seleccionado
+                          _cantidadController
+                              .clear(); // Limpiar el campo de cantidad
                         });
-                      }),
-                  Row(
-                    children: [
-                      Input(
-                          hintText: "",
-                          labelText: "Cantidad",
-                          controller: _cantidadController),
-                      IconButton(
-                          onPressed: () {
-                            addIngredient();
-                          },
-                          icon: Icon(Icons.check_box))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                    height: 200,
-                    width: 200,
-                    child: ListView.builder(
-                      itemCount: ingredientesSeleccionados.length,
-                      itemBuilder: (context, index) {
-                        final ingredient = ingredientesSeleccionados[index];
-                        return ListTile(
-                          title: Text(
-                              "${ingredient['nombre']} - ${ingredient['cantidad']} unidades"),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () => removeIngredient(index),
-                          ),
-                        );
-                      },
+                      }
+                      Navigator.of(context).pop();
+                      showIngredientsModal();
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text("Añadir"),
+                    style: ElevatedButton.styleFrom(
+                      maximumSize: Size(200, 100),
+                      backgroundColor: const Color.fromARGB(255, 212, 10, 8),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.fromLTRB(30, 20, 30, 20),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Ingredientes seleccionados:",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ...ingredientesSeleccionados
+                            .where((ingrediente) => ingrediente != null)
+                            .map((ingrediente) {
+                          return ListTile(
+                            title: Text(ingrediente['nombre'] ?? 'sin nombre'),
+                            subtitle: Text(
+                                "Cantidad: ${ingrediente['cantidad'] ?? '0'} ${ingrediente['unidad_medida'] ?? 'unidades'}"),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                setState(() {
+                                  ingredientesSeleccionados.remove(ingrediente);
+                                });
+                                Navigator.of(context).pop();
+                                showIngredientsModal();
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  )
                 ],
               ),
               actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      selectedIngredient = {};
+                      ingredientesExistentes = [];
+                      ingredientesSeleccionados = [];
+                    });
+                  },
+                  child: const Text(
+                    "Cancelar",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
                 Button(
-                    text: "Cancelar",
-                    size: Size(200, 100),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    }),
-                Button(
-                    text: "Guardar",
-                    size: Size(200, 100),
-                    onPressed: () {
-                      confirmIngredients();
-                      Navigator.of(context).pop();
-                    }),
+                  onPressed: () {
+                    saveIngredients();
+                    Navigator.of(context).pop();
+                  },
+                  text: "Guardar",
+                  size: Size(200, 100),
+                ),
               ],
             );
           });
@@ -364,31 +432,13 @@ class _MenuState extends State<Menu> {
                                     "Tipo",
                                     style: TextStyle(fontSize: 16),
                                   ),
-                                  DropdownButton(
-                                      value: typeValue,
-                                      items: const [
-                                        DropdownMenuItem(
-                                          value: 'platillo',
-                                          child: Text("Platillo"),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: 'bebida',
-                                          child: Text("Bebida"),
-                                        )
-                                      ],
-                                      onChanged: (value) {
-                                        setState(() {
-                                          typeValue = value!;
-                                        });
-                                      }),
                                   SizedBox(
                                     height: 10,
                                   ),
-                                  if (selectedItem?['tipo'] == 'platillo')
-                                    Button(
-                                        text: "Agregar ingredientes",
-                                        size: Size(250, 100),
-                                        onPressed: showIngredientsModal),
+                                  Button(
+                                      text: "Agregar ingredientes",
+                                      size: Size(250, 100),
+                                      onPressed: showIngredientsModal),
                                   SizedBox(
                                     height: 10,
                                   ),
@@ -487,7 +537,7 @@ class _MenuState extends State<Menu> {
                         columns: const [
                           DataColumn(
                               label: Text(
-                            "Tipo",
+                            "#",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
@@ -524,7 +574,7 @@ class _MenuState extends State<Menu> {
                         rows: _menuList.map((elemento) {
                           return DataRow(cells: [
                             DataCell(
-                              Text(elemento['tipo'].toString()),
+                              Text(elemento['id_platillo'].toString()),
                             ),
                             DataCell(Text(elemento['nombre'])),
                             DataCell(Text(
@@ -535,6 +585,8 @@ class _MenuState extends State<Menu> {
                               onPressed: () {
                                 _sidePanelController.showRightPanel();
                                 editElement(elemento);
+                                getDishIngredients(
+                                    selectedItem?['id_platillo']);
                               },
                             ))
                           ]);

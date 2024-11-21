@@ -25,7 +25,7 @@ class _PagosState extends State<Pagos> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _correoController = TextEditingController();
   String tipoPago = "efectivo";
-  double cantidadPagada = 0;
+  double? cantidadPagada;
   double cambio = 0;
   late int? userId;
   late String? userName;
@@ -71,7 +71,7 @@ class _PagosState extends State<Pagos> {
     final montoRecibido = double.tryParse(cantidad) ?? 0;
     setState(() {
       cambio = montoRecibido - widget.total;
-      cantidadPagada = double.tryParse(cantidad) ?? 0;
+      cantidadPagada = double.tryParse(cantidad);
     });
   }
 
@@ -93,7 +93,9 @@ class _PagosState extends State<Pagos> {
         'tipo': producto['tipo']
       });
     }
-    if (_correoController.text.isNotEmpty) {}
+    if (_correoController.text.isNotEmpty) {
+      sendEmail();
+    }
   }
 
   Future<void> sendEmail() async {
@@ -101,14 +103,14 @@ class _PagosState extends State<Pagos> {
       'total': widget.total,
       'nombre_cliente': _nombreController.text,
       'tipo_pago': tipoPago,
-      'monto_recibido': cantidadPagada,
+      'monto_recibido': cantidadPagada ?? widget.total,
       'cambio': cambio,
       'nombre_empleado': userName,
       'fecha': DateTime.now().toIso8601String()
     }, widget.currentOrder);
 
     String pdfBase64 = base64Encode(pdf);
-    var url = Uri.parse("http://arrozzz.pro/api/enviar-email");
+    var url = Uri.parse("https://arrozzz.pro/api/enviar-email");
 
     var request =
         jsonEncode({'pdfFile': pdfBase64, 'email': _correoController.text});
@@ -247,7 +249,6 @@ class _PagosState extends State<Pagos> {
                                                     "Pago realizado correctamente",
                                               )),
                                     );
-                                    sendEmail();
                                   },
                                   text: "Pagar",
                                 ),

@@ -1,9 +1,6 @@
 import 'package:digital_menu/src/widgets/button.dart';
-import 'package:digital_menu/src/widgets/input.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:digital_menu/src/widgets/image_uploader.dart';
 import 'package:side_panel/side_panel.dart';
 
 final supabase = Supabase.instance.client;
@@ -225,7 +222,7 @@ class _OrdenAdminState extends State<OrdenAdmin> {
                             ),
                             DataCell(Text(elemento['estado'])),
                             DataCell(Text(elemento["nombre_cliente"])),
-                            DataCell(Text('aa')),
+                            DataCell(Text('Empleado')),
                             DataCell(Text(elemento['total'].toString())),
                             DataCell(IconButton(
                               icon: const Icon(Icons.menu),

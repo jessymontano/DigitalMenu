@@ -1,33 +1,22 @@
-import 'package:digital_menu/src/pages/home/ordenes.dart';
-import 'package:digital_menu/src/pages/home/platillos.dart';
+import 'package:digital_menu/src/pages/reportes/graficas.dart';
+import 'package:digital_menu/src/pages/reportes/reportes_ordenes.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/navbar.dart';
 
-class Home extends StatefulWidget {
-  final String? successMessage;
-  const Home({super.key, this.successMessage});
+class Reportes extends StatefulWidget {
+  const Reportes({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Reportes> createState() => _ReportesState();
 }
 
-class _HomeState extends State<Home> {
+class _ReportesState extends State<Reportes> {
   int _selectedIndex = 0;
-  final List<Widget> _homeOptions = [const Platillos(), Ordenes()];
+  final List<Widget> _reportesOptions = [Graficas(), ReporteOrden()];
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.successMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(widget.successMessage!),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    });
     return NavBar(
-        title: const Text("Ordenar",
+        title: const Text("Reportes",
             style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -38,7 +27,7 @@ class _HomeState extends State<Home> {
                 padding: const EdgeInsets.all(20),
                 child: IndexedStack(
                   index: _selectedIndex,
-                  children: _homeOptions,
+                  children: _reportesOptions,
                 )),
           ),
           BottomNavigationBar(
@@ -50,11 +39,10 @@ class _HomeState extends State<Home> {
                 });
               },
               items: const [
-                //TODO: cambiar iconos y color del icono seleccionado
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.fastfood), label: "Platillos"),
+                    icon: Icon(Icons.trending_up), label: "Estadísticas"),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.list_alt), label: "Órdenes")
+                    icon: Icon(Icons.edit_document), label: "Reportes")
               ])
         ]));
   }

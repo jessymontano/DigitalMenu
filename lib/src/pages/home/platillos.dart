@@ -34,6 +34,24 @@ class _PlatillosState extends State<Platillos> {
     _sidePanelController.showRightPanel();
   }
 
+  void removeFromOrder(Map<String, dynamic> element) {
+    if (element['cantidad'] == 1) {
+      setState(() {
+        currentOrder.remove(element);
+      });
+    } else {
+      Map<String, dynamic> orderElement =
+          currentOrder.elementAt(currentOrder.indexOf(element));
+      setState(() {
+        orderElement.update('cantidad', (value) => value - 1);
+      });
+    }
+
+    if (currentOrder.length == 0) {
+      _sidePanelController.hideRightPanel();
+    }
+  }
+
   Future<void> getMenu() async {
     var platillos = await supabase
         .from('platillos')
@@ -108,19 +126,31 @@ class _PlatillosState extends State<Platillos> {
                           child: Column(children: [
                             ...currentOrder.map((item) {
                               return ListTile(
-                                isThreeLine: true,
-                                leading: Image.network(
-                                  getImageUrl(item),
-                                  width: 50,
-                                  height: 50,
-                                ),
-                                title: Text(item['nombre']),
-                                subtitle: Text((item['descripcion'] ??
-                                        'Sin descripción') +
-                                    '\nCantidad: ${item['cantidad'].toString()}'),
-                                trailing:
-                                    Text('\$${item['precio'].toString()}'),
-                              );
+                                  isThreeLine: true,
+                                  leading: Image.network(
+                                    getImageUrl(item),
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                  title: Text(item['nombre']),
+                                  subtitle: Text((item['descripcion'] ??
+                                          'Sin descripción') +
+                                      '\nCantidad: ${item['cantidad'].toString()}'),
+                                  trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('\$${item['precio'].toString()}'),
+                                        IconButton(
+                                          icon: Icon(
+                                              Icons
+                                                  .remove_circle_outline_rounded,
+                                              color: Colors.red),
+                                          onPressed: () {
+                                            removeFromOrder(item);
+                                            getTotalPrice();
+                                          },
+                                        ),
+                                      ]));
                             }),
                           ]),
                         ),

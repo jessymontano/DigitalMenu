@@ -1,5 +1,7 @@
 import "package:digital_menu/src/pages/admin/admin.dart";
+import "package:digital_menu/src/pages/login/login.dart";
 import "package:digital_menu/src/pages/productos/productos_home.dart";
+import "package:digital_menu/src/pages/reportes/reportes.dart";
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
 import "../pages/configuracion/configuracion.dart";
@@ -117,7 +119,10 @@ class _SideBarState extends State<SideBar> {
             ),
             ListTile(
               title: const Text('Reportes'),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const Reportes()));
+              },
             ),
             if (_userIsAdmin)
               ListTile(
@@ -140,7 +145,8 @@ class _SideBarState extends State<SideBar> {
                 title: const Text("Salir"),
                 onTap: () {
                   signout();
-                  Navigator.pop(context);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: ((context) => Login())));
                 })
           ])),
           Container(

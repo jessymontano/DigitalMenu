@@ -3,6 +3,7 @@ import 'package:digital_menu/src/pages/admin/ordenes_admin.dart';
 import 'package:digital_menu/src/widgets/navbar.dart';
 import 'package:digital_menu/src/pages/admin/productos_admin.dart';
 import 'package:digital_menu/src/pages/admin/usuarios.dart';
+import 'package:digital_menu/src/pages/admin/compras_admin.dart';
 import 'package:flutter/material.dart';
 
 class Admin extends StatefulWidget {
@@ -20,7 +21,7 @@ class _AdminState extends State<Admin> {
     const ProductosAdmin(),
     const OrdenAdmin(),
     const Usuarios(),
-    //const ComprasAdmin(),
+    const ComprasAdmin(),
   ];
 
   @override

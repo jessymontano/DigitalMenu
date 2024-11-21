@@ -20,12 +20,12 @@ class _RespaldosState extends State<Respaldos> {
   }
 
   Future<http.Response> backupDatabase() {
-    return http.post(Uri.parse("http://localhost:3000/api/crear-backup"));
+    return http.post(Uri.parse("https://arrozzz.pro/api/crear-backup"));
   }
 
   Future<void> fetchBackups() async {
     final response =
-        await http.post(Uri.parse("http://localhost:3000/api/ver-backups"));
+        await http.post(Uri.parse("https://arrozzz.pro/api/ver-backups"));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
@@ -44,12 +44,12 @@ class _RespaldosState extends State<Respaldos> {
         backups = parsedBackups;
       });
     } else {
-      print("error");
+      print(jsonDecode(response.body));
     }
   }
 
   void restoreBackup(String fileName) async {
-    var url = Uri.parse("http://localhost:3000/api/recuperar-backup");
+    var url = Uri.parse("https://arrozzz.pro/api/recuperar-backup");
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("Recuperando respaldo...")));
     var response = await http.post(url, body: jsonEncode({'backup': fileName}));
